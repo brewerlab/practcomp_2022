@@ -1,0 +1,41 @@
+    1  ls
+    2  exit
+    3  wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+    4  bash Miniconda3-latest-Linux-x86_64.sh 
+    5  less -S Miniconda3-latest-Linux-x86_64.sh 
+    6  md5sum Miniconda3-latest-Linux-x86_64.sh 
+    7  head Miniconda3-latest-Linux-x86_64.sh 
+    8  clear
+    9  exit
+   10  conda install mamba -c conda-forge
+   11  mamba
+   12  clear
+   13  mamba install htop
+   14  mamba install htop -c conda-forge
+   15  htop
+   16  ls
+   17  mkdir praccomp
+   18  cd praccomp/
+   19  clear
+   20  cd
+   21  cd praccomp
+   22  git
+   23  clear
+   24  git clone https://github.com/brewerlab/practcomp_2022.git
+   25  ls
+   26  cd practcomp_2022/
+   27  ls
+   28  nano README.md
+   29  ls
+   30  git status
+   31  git add README.md 
+   32  git status
+   33  git commit -m "Added README.md"
+   34  git config --global user.email "brewermi14@ecu.edu"
+   35  git config --glocal user.name "brewermi14"
+   36  git config --global user.name "brewermi14"
+   37  git commit -m "Added README.md"
+   38  git status
+   39  git push
+   40  history
+   41  history > log.txt
