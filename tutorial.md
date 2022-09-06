@@ -18,3 +18,27 @@ __This text will also be bold__
 
 _You **can** combine them_
 
+## BLOCKQUOTES
+
+_The Way We Were_ by G.A. Parker
+
+> A sweet and friendly porcupine, \
+> Snuffled up; his eyes met mine, \
+> I pickled him in bright red wine, \
+> And labelled each and every spine.
+
+> A thousand more I then did nail, \
+> and measured all from head to tail, \
+> and plotted on a log/log scale, \
+> ... but everything to no avail.
+
+> An orgy of regression failed -- \
+> So algebra I then assailed, \
+> With all the fun that this entailed \
+> I modelled ... and results prevailed.
+
+> My future now was quite secure, \
+> And to the field I go no more, \
+> Papers, papers by the score \
+> Full of sums and such a bore.
+
