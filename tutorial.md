@@ -75,3 +75,27 @@ https://brewerlab.net - automatic
 
 [Brewer Lab](https://brewerlab.net)
 
+## BACKSLASH ESCAPE
+
+\*Literal asterisks\*
+
+## FENCED CODE BLOCKS
+
+Generic example:
+
+```
+echo "Hello"
+```
+
+Python example:
+
+```python
+print("Hello")
+```
+
+R example:
+
+```r
+x <- 4^2
+```
+
