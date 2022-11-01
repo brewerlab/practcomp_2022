@@ -1,0 +1,1365 @@
+#####Practical Scientific Computing
+#####BIOL 4800/6280
+#####Spring 2016
+#####Michael Brewer
+
+####1 -- Regular Expression
+
+###11-i-2016
+
+##Agalma elegans example
+
+"Agalma elegans"
+
+Replace "galma" with "."
+
+Try with more taxa:
+	"Frillagalma vityaxi"
+	"Cordagalma tottoni"
+
+"Mus musculus" --> M. m.cul.
+
+##This is why we use wildcards!
+
+##"\w" example and capturing text
+
+Matches all numbers [0-9], letters [A-z], and "_"
+
++40 46'N +014 15'E
++21 17'N -157 52'W
+
+If you find and replace "\w" with "", it leaves only +, -, and '.
+	However, find and replace "'\w" with "", and you remove only N, E, and W.
+
+Back to scientific names:
+
+Tetragnatha versicolor Walckenaer, 1841
+Pachygnatha clerkoides Wunderlich, 1985
+Dolichognatha albida (Simon, 1895)
+
+Agalma elegans
+Frillagalma vityaxi
+Cordagalma tottoni
+
+(\w)\w+ (\w+) -> \1. \2
+
+#Make a tab-delimited translation table
+
+(\w)(\w+) (\w+) -> \1\2 \3\t\1_\3
+
+#Put sample names first
+
+(\w)(\w+) (\w+) -> \1_\3\t\1\2 \3
+
+#With taxonomy
+
+Agalma elegans (Sars, 1846)
+Frillagalma vityaxi Daniel, 1966
+Cordagalma tottoni Margulis, 1993
+
+( ->
+) ->
+(\w)(\w+) (\w+) (\w+), (\d+) -> \1_\3\t\1\2 \3\t\4\t\5
+
+#GenBank example
+
+>CAA58790.1= GFP [Aequorea victoria]
+MMSDLSDFOINVLKSDVNOIWENGLKWENVPWENVPWNEKLSDLVKNWPENG
+>AAZ67342.1= GFP-like red flourescent protein [Corynactis californica]
+SLDKVNIPENVPNOVNOWEBNOWBVPONVOENVOIWINEVONBOWNBOIWNB
+
+Reduce headers
+
+#Accession genus header
+(>\w+).+\[(\w+).+ -> \1_\2
+
+#G-species header
+(>\w+).+\[(\w)\w+ (\w+).+ -> \1_\2-\3
+
+#Database Accession G_species seq
+>(\w+).+\[(\w)\w+ (\w+).+\n -> /1\t\2_\3\t
+
+###13-i-2016
+
+##Install VirtualBox and Bio-Linux
+
+##Custom wildcards using []
+
+#Field Notes example
+
+Field notes
+18-vii-2014
+13 January, 1752 at 13:53	-1.414	 5.781	 Found in tide pools	 20C
+17 March, 1961 at 03:46	 14	 3.6	 Thirty specimens observed	 18C
+1 Oct., 2002 at 18:22	 36.51	 -3.4221	 Genome sequenced to confirm	 21C
+20 July, 1863 at 12:02	 1.74	 133	 Article in Harper's	 16C
+
+Want:
+Just full month name, no punctuation
+
+\d+\s+([A-Za-z]+)[\w\,\.].+ -> \1
+
+#Undo changes
+
+##Match boundaries, quantifiers, and rearranging columns of a tab-delimited file
+
+Want:
+Year	Mon.	Day	Hour	Minute	xdata	ydata	temp
+
+^(\d+)\s+(\w{3})[\w\,\.]*\s+(\d+)\sat\s+(\d+):(\d+)\s+([-\d\.]+)\s+([-\d\.]+).*(\d{2})C$ -> \3\t\2.\t\1\t\4\t\5\t\6\t\7\t\8\n
+
+Want:
+Temperature before text notes.
+
+(\d{4})\t([^\t]+)\t([^\t]+)\t([^\t]+)\t([^\t]+)\t([^\t]+)\t([^\t]+)\t([^\t]+)\n -> \1\t\2\t\3\t\4\t\5\t\6\t\8\t\7\n
+
+####2 -- The Unix Shell and Command-line Operations
+
+###20-i-2016
+
+#Change keyboard
+
+#Change desktop in Bio-Linux to Gnome Flashback Metacity
+
+#Pin terminal & Firefox to task bar
+
+#Download pcfb sample data: practicalcomputing.org/files/pcfb_examples.zip
+
+##Getting started with the shell and changing default shell
+
+>echo $SHELL
+
+>chsh -s /bin/bash
+log out and log back in
+
+#Path
+
+Absolute path vs. relative path vs. working directory
+
+##Navigating via the shell
+
+>ls
+>ls Desktop
+
+>pwd
+
+>cd Desktop
+>ls Desktop
+What happened?
+>ls /Desktop
+>ls /home/manager/Desktop
+Why does this work?
+
+>cd ..
+>ls
+>cd Desktop
+>cd ../Documents
+
+>cd ~/Desktop
+
+>ls
+>mkdir test
+>ls
+Look at graphical Desktop
+>cd test
+>ls
+>cd ..
+>rmdir test
+
+>mkdir test
+>cd test
+>touch meh.txt
+>ls
+>cd ..
+>rmdir test
+Why didn't this work?
+>cd test
+>rm meh.txt
+>cd ..
+>rmdir test
+>ls
+
+>mkdir test
+>touch meh.txt
+>cp meh.txt test/
+>rm test/meh.txt
+>cp meh.txt test/meh-dup.txt
+>rm test/meh-dup.txt
+
+>mv meh.txt meh_renamed.txt
+>mv meh_renamed.txt test/meh.txt
+>ls
+>ls test/
+
+##Shortcuts up arrow and tab
+
+>cd ~/Doc [tab]
+>cd ~/D [tab]
+Why doesn't this work?
+>cd ~/D [tab][tab]
+
+##Special characters
+
+#Create a directory on the Desktop with a space "My Project"
+
+>cd ~/Desktop
+>cd My Project
+Why didn't this work?
+>cd My [tab]
+
+#Use escape character!
+>cd ..
+>cd My\ Project
+
+##Modifying commands with arguments
+
+>cd
+Why did this take us home?
+>ls
+>ls -a
+How is this different?
+>ls -l
+How is this different?
+>ls -la
+>man ls
+
+##Viewing text with less
+
+>cd Desktop
+
+#Copy pcfb_examples.zip to Desktop
+
+>unzip pcfb_examples.zip
+>cd pcfb
+>ls
+>cd examples
+>ls
+>ls *.seq
+>less FEC00001_1.seq
+
+##Copying/moving/deleting multiple files
+
+>cp *.seq ~/Desktop
+>ls ~/Desktop/
+>rm ~/Desktop/*.seq
+>ls ~/Desktop/
+>cd ~/Desktop
+>cp pcfb/examples/*.seq ./
+>ls rm *.seq
+
+##Directing output
+
+>cd ~/Desktop/pcfb/sandbox/
+>ls -l ../examples/*.seq
+>ls -l ../examples/*.seq > files.txt
+
+>cat ../examples/*.seq
+>cat ../examples/*.seq > sequences.fasta
+>cat ../examples/*.seq >> sequences.fasta
+What happeded?
+>cat ../examples/*.seq > sequences.fasta
+How is this different?
+
+##Counting with grep
+>grep ... fasta_file
+>grep -c ... fasta_file
+>grep -c "^>" ... fasta_file
+
+###25-i-2016
+
+##Using grep
+
+>cd ~/Desktop/pcfb/sandbox/
+>grep "Toolik Lake" ../examples/shaver_etal.csv
+>grep "Toolik Lake" ../examples/shaver_etal.csv > toolik.csv
+>grep "toolik lake" ../examples/shaver_etal.csv
+>grep -i "toolik lake" ../examples/shaver_etal.csv
+>grep "Aug.*Toolik Lake" ../examples/shaver_etal.csv > toolik2.csv
+>grep -v "Toolik Lake" ../examples/shaver_etal.csv
+>grep -c "Toolik Lake" ../examples/shaver_etal.csv
+
+##Piping & history command
+
+>history
+>history | grep Toolik
+>grep "Aug" ../examples/shaver_etal.csv | grep "Toolik"
+>grep "Aug" ../examples/shaver_etal.csv | grep "Toolik" > toola2.csv
+
+>cd ~/Desktop/pcfb/examples/
+grep "^>" *.seq
+Is this useful?
+>cat *.seq
+>cat *.seq | grep "^>"
+What is the difference?
+
+>grep -l "GAATTC" *.seq
+>grep -l "GAATTC" *.seq > ../sandbox/has_EcoRI.txt
+
+##Curl
+
+>curl "http://www.rcsb.org/pdb/files/4hhb.pdb"
+>curl "http://www.rcsb.org/pdb/files/4hhb.pdb" > 4hhb.pdb
+>curl "http://www.rcsb.org/pdb/files/4hhb.pdb" -o 4hhb.pdb
+>curl "http://www.wunderground.com/history/airport/PGV/2007/09/[01-30]/DailyHistory.html?&format=1" > greenville_weather.txt
+>curl "http://www.wunderground.com/history/airport/PGV/2007/09/[01-30]/DailyHistory.html?&format=1" >> greenville_weather.txt
+>curl "http://www.wunderground.com/history/airport/PGV/2007/[1-12]/1/DailyHistory.html?&format=1" -o greenville_2007_#1.txt
+>ls greenville*
+
+>curl "http://www.rcsb.org/pdb/files/4hhb.{sif,xml}"
+
+##Path stuff
+
+>which cd
+>which ls
+>which bash
+>which which
+
+#Creating workspace
+>cd
+>mkdir scripts
+>ls
+>echo $PATH
+>set
+>echo $USER
+>echo "Hi, I am $USER."
+
+>nano ~/.profile
+export PATH="$PATH:${HOME}/scripts"
+>source ~/.profile
+
+##Scripting!!!
+Shebang
+>nano
+#! /bin/bash
+ls -la
+echo "Above are the directory listings for this folder:"
+pwd
+echo "Right now it is:"
+Date
+#[ctrl+x] and save and name dir.sh
+
+>dir.sh
+>ls -l
+>chmod u+x dir.sh
+>ls -l
+>dir.sh
+>cd ~/Desktop
+>dir.sh
+
+##Ending the terminal session
+
+>exit
+
+###27-i-2016
+
+##Using grep and cp to make a bulk file copying script
+
+>cd ~/Desktop/pcfb/examples
+>grep -li fluor *.pdb
+>grep -li fluor *.pdb > ~/scripts/copier.sh
+>nano ~/scripts/copier.sh
+alt+r
+alt+r
+^(.+) -> cp ~/Desktop/pcfb/examples/\1 ~/Desktop/pcfb/sandbox/
+#add shebang
+>chmod u+x ~/scripts/copier.sh
+
+##Aliases
+
+>ls
+>ls -la
+>alias la="ls -la"
+add to ~/.profile
+
+##Advanced Unix commands
+
+>cd ~/Desktop/pcfb/examples
+>head ThalassocalyceData.txt
+>tail ThalassocalyceData.txt
+>head -n 2 ThalassocalyceData.txt
+>head -n 5 ThalassocalyceData.txt
+>tail -n 5 ThalassocalyceData.txt
+
+>cut -f 2-4 ~/Desktop/pcfb/examples/ThalassocalyceData.txt
+>head -n 20 ~/Desktop/pcfb/examples/ctd.txt | less -S
+>head -n 20 ~/Desktop/pcfb/examples/ctd.txt | cut -d "," -f 1,5,7,9
+>grep ">" ~/Desktop/pcfb/examples/PFexamples.fta
+>grep ">" ~/Desktop/pcfb/examples/PFexamples.fta | cut -c 2-11
+>grep ">"~/Desktop/pcfb/examples/FPexcerpt.fta | sort
+>grep ">"~/Desktop/pcfb/examples/FPexcerpt.fta | sort | cut -c 2-
+>tail -n +2 ~/Desktop/pcfb/examples/ThalassocalyceData.txt | sort -k 2
+>tail -n +2 ~/Desktop/pcfb/examples/ThalassocalyceData.txt | sort -k 2 -n
+
+#Big example
+
+#visit tinyurl.com/pcfb-gfp
+>grep ATOM structure_1gfl.pdb
+>grep ATOM structure_1gfl.pdb | grep -v REMARK
+>grep ATOM structure_1gfl.pdb | grep -v REMARK | cut -c 18-21,24-26
+>grep ATOM structure_1gfl.pdb | grep -v REMARK | cut -c 18-21,24-26 | sort
+>grep ATOM structure_1gfl.pdb | grep -v REMARK | cut -c 18-21,24-26 | sort | uniq
+>grep ATOM structure_1gfl.pdb | grep -v REMARK | cut -c 18-21,24-26 | sort | uniq | cut -f 1 -d " "
+>grep ATOM structure_1gfl.pdb | grep -v REMARK | cut -c 18-21,24-26 | sort | uniq | cut -f 1 -d " " | uniq -c
+>grep ATOM structure_1gfl.pdb | grep -v REMARK | cut -c 18-21,24-26 | sort | uniq | cut -f 1 -d " " | uniq -c | sort -nr
+
+##Group activity
+
+>curl "https://dl.dropboxusercontent.com/u/19265452/Brachycybe_lecontii_sequence.fasta"
+>curl "https://dl.dropboxusercontent.com/u/19265452/Brachycybe_lecontii_sequence.fasta" -o Brachycybe_lecontii_sequence.fasta
+
+#Number of samples from each state
+>grep "^>" Brachycybe_lecontii_sequence.fasta | grep -v "complete genome" | cut -d " " -f 5 | cut -c 1-2 | sort | uniq -c
+
+#Number of each gene
+>>grep "^>" Brachycybe_lecontii_sequence.fasta | grep -v "complete genome" | cut -d "(" -f 2 | cut -d ")" -f 1 | sort | uniq -c
+
+####3 -- Python scripting
+
+###01-ii-2016
+
+##Shebang for Python
+
+##dnacal.py example
+
+>cd ~/scripts
+>nano dnacalc.py
+
+#!/usr/bin/env python
+DNASeq = "ATGAAC"
+print "Sequences: ", DNASeq
+
+>chmod u+x dnacalc.py
+>dnacalc.py
+>nano dnacalc.py
+
+...
+SeqLength = len(DNASeq)
+print "Sequence Length: ", SeqLength
+
+>dnacalc.py
+
+>python
+>>>print '7'+ str(3*2)
+>>>print float('7.5')+3*2
+>>>print float('2.454e-2')
+
+>nano dnacalc.py
+
+...
+NumberA = DNASeq.count("A")
+NumberC = DNASeq.count("C")
+NumberG = DNASeq.count("G")
+NumberT = DNASeq.count("T")
+
+SeqLength = float(len(DNASeq))
+
+print 'A:', NumberA/SeqLength
+print 'C:', NumberC/SeqLength
+print 'G:', NumberG/SeqLength
+print 'T:', NumberT/SeqLength
+
+>dnacalc.py
+>nano dnacalc.py
+
+#-out previous counts
+
+print "\n\nIn sequence %s, there are:\n\t%d (%.2f) As\n\t%d (%.2f) Cs\n\t%d (%.2f) Gs\n\t%d (%.2f) Cs\n\n" % (DNASeq, NumberA, NumberA/SeqLength*100, NumberC, NumberC/SeqLength*100, NumberG, NumberG/SeqLength*100, NumberT, NumberT/SeqLength*100)
+
+>dnacalc.py
+>nano dnacalc.py
+
+DNASeq = raw_input("Enter a DNA sequence: ")
+DNASeq = DNASeq.upper()
+DNASeq = DNASeq.replace(" ", "")
+
+>dnacalc.py
+
+##Decisions
+
+>python
+>>>DNASeq='ATGCAC'
+>>>DNASeq.lower()
+>>>DNASeq.isdigit()
+>>>DNASeq.startswith('ATG')
+>>>b=DNASeq.startswith('ATG')
+>>>print b
+>>>DNASeq.endswith('cac')
+>>>quit()
+
+>nano dnacalc.py
+...
+TotalStrong = NumberG + NumberC
+TotalWeak = NumberA + NumberT
+MeltTemp = (4 * TotalStrong) + (2 * TotalWeak)
+print "Melting Temp: %.1f C" % (MeltTemp)
+
+>dnacalc.py
+>nano dnacalc.py
+...
+if SeqLength >= 14:
+	MeltTempLong = 64.9 + 41 * (TotalStrong - 16.4) / SeqLength
+	print "Tm Long (>14): %.1f C" % (MeltTempLong)
+else:
+	MeltTemp = (4 * TotalStrong) + (2 * TotalWeak)
+	print "Melting Temp: %.1f C" % (MeltTemp)
+
+>dnacalc.py #try short and long sequences
+
+##Loops
+
+>nano dnacalc.py
+...
+BaseList = "ACGT"
+for Base in BaseList:
+	Percent = 100 * DNASeq.count(Base) / SeqLength
+	print  "%s: %4.1f" % (Base, Percent)
+
+>dnacalc.py
+
+###03-ii-2016
+
+##Big Brachycybe fasta example/group work
+
+Importing modules (os and sys)
+Reading input from the commandline (sys)
+Interacting with Unix (os)
+Reading and Writing files (open and close)
+Reading files line by line (XXX.readlines)
+Sorting (list.sort)
+
+#! /usr/bin/env python
+
+import sys
+import os
+fp1=open(sys.argv[1], 'r+U')
+fp2=open("temp.txt", 'w+')
+
+lines=fp1.readlines()
+
+for line in lines:
+	if len(line)>1:
+		if line.startswith(">"):
+			pass
+		else:
+			line=line.replace("\n", "")
+
+	if line.startswith(">") and line.find("(CytB)")!=-1:
+		segs=line.split(" ")
+		fp2.write(segs[4]+"\tCytB\t")
+	elif line.startswith(">") and line.find("(COI)")!=-1:
+		segs=line.split(" ")
+		fp2.write(segs[4]+"\tCOI\t")
+	elif line.startswith(">") and line.find("(192fin)")!=-1:
+		segs=line.split(" ")
+		fp2.write(segs[4]+"\t192fin\t")
+	elif line.startswith(">") and line.find("complete genome")!=-1:
+		segs=line.split(" ")
+		fp2.write("B_lecontii\tcompleteMT\t")
+	else:
+		fp2.write(line)
+
+fp1.close()
+fp2.close()
+
+fp3=open("temp.txt", 'r+U')
+os.system("rm RE_cut_counter_OUTPUT.csv")
+fp4=open("RE_cut_counter_OUTPUT.csv", 'a+')
+
+seqs=fp3.readlines()
+
+seqs.sort()
+
+for seq in seqs:
+	if len(seq)>1:
+		segs=seq.split("\t")
+		ecoRI=segs[2].count("GAATTC")
+		aluI=segs[2].count("AGCT")
+		if ecoRI>0 and sys.argv[2].upper()=="ECORI":
+			print segs[0]+"\t"+segs[1]+"\tEcoRI-cut:"+str(ecoRI)
+			fp4.write(segs[0]+"\t"+segs[1]+"\tEcoRI-cut:"+str(ecoRI)+"\n")
+		if aluI>0 and sys.argv[2].upper()=="ALUI":
+			print segs[0]+"\t"+segs[1]+"\tAluI-cut:%s" % (aluI)
+			fp4.write(segs[0]+"\t"+segs[1]+"\tAluI-cut:%s\n" % (aluI))
+		if sys.argv[2].upper()=="ALL":
+			print segs[0]+"\t"+segs[1]+"\tAluI-cut:%s\tEcoRI-cut:%s" % (aluI,ecoRI)
+			fp4.write(segs[0]+"\t"+segs[1]+"\tAluI-cut:%s\tEcoRI-cut:%s\n" % (aluI,ecoRI))
+
+fp3.close()
+fp4.close()
+os.remove("temp.txt")
+
+###08-ii-2016
+
+##Dictionaries & lists
+
+#RPG example
+>python
+>>>inventory = {
+    'gold' : 500,
+    'pouch' : ['flint', 'twine', 'gemstone'],
+    'backpack' : ['xylophone','dagger', 'bedroll','bread loaf']
+}
+>>>inventory.get('gold')
+>>>inventory.get('backpack')
+>>>inventory['gold']=inventory['gold']-50
+>>>inventory.setdefault('backpack', []).append('longsword+1')
+>>>inventory.get('gold')
+>>>inventory.get('backpack')
+
+>>>bp=list(inventory.get('backpack'))
+>>>bp[2]
+>>>bp[2-4]
+>>>bp[2:]
+>>>bp[:2]
+>>>bp[2:4]
+>>>bp[-4:]
+>>>bp[-3:]
+>>>'\t'.join(bp)
+>>>del(bp[5])
+>>>quit()
+
+#Go to http://practicalcomputing.org/aminoacid.html, copy table, and paste in gedit
+#Use regex to parse to 'single letter symbol':mol weight,
+.+(.)\t(\d+\.\d+)$ -> '\1':\2,
+#Paste entries into dictionary
+#! /usr/bin/env python
+
+AminoDict={
+	'A':89.09,
+	'R':174.20,
+	'N':132.12,
+	'D':133.10,
+	'C':121.15,
+	'Q':146.15,
+	'E':147.13,
+	'G':75.07,
+	'H':155.16,
+	'I':131.17,
+	'L':131.17,
+	'K':146.19,
+	'M':149.21,
+	'F':165.19,
+	'P':115.13,
+	'S':105.09,
+	'T':119.12,
+	'W':204.23,
+	'Y':181.19,
+	'V':117.15,
+	'X':0.0,
+	'-':0.0,
+	'*':0.0
+}
+
+import sys
+import os
+#os.remove("temp1.txt")
+fp1=open(sys.argv[1], 'r+U')
+fp2=open("temp1.txt", 'w+')
+
+lines=fp1.readlines()
+
+for line in lines:
+	line=line.strip()
+
+	if line.startswith(">") and line.find("complete")!=-1:
+		segs=line.split(" ")
+		fp2.write(segs[0]+"\tcomplete\t")
+	elif line.startswith(">") and line.find("partial")!=-1:
+		segs=line.split(" ")
+		fp2.write(segs[0]+"\tpartial\t")
+	elif line.startswith(">") and line.find("internal")!=-1:
+		segs=line.split(" ")
+		fp2.write(segs[0]+"\tinternal\t")
+	else:
+		fp2.write(line+"\n")
+fp1.close()
+fp2.close()
+
+fp3=open("temp1.txt", 'r+U')
+fp4=open("protein_OUTPUT.csv", 'w+')
+
+lines=fp3.readlines()
+lines.sort()
+
+count_complete=0
+count_partial=0
+count_internal=0
+
+for line in lines:
+	line=line.replace(">", "")
+	line=line.strip()
+	if len(line)>1:
+		segs=line.split("\t")
+		if segs[1]=="complete":
+			count_complete+=1
+			AAseq=str(segs[2])
+			MW=0
+			for each in AAseq:
+				MW+=AminoDict[each]
+			#print segs[0], segs[1], MW
+			fp4.write(segs[0]+"\t"+segs[1]+"\tMolecular_Weight:"+"\t"+str(MW)+"\t\n")
+		elif segs[1]=="partial":
+			count_partial+=1
+		elif segs[1]=="internal":
+			count_internal+=1
+#print "complete\t",count_complete
+#print "partial\t",count_partial
+#print "internal\t",count_internal
+
+fp3.close()
+fp4.close()
+
+fp5=open("protein_OUTPUT.csv", "r+U")
+fp6=open("protein_summary.txt", 'w+')
+lines=fp5.readlines()
+
+totalMW=0
+for line in lines:
+	line=line.strip()
+	if len(line)>1:
+		segs=line.split("\t")
+		totalMW+=float(segs[3])
+		fp6.write(line+"\n")
+avgMW=totalMW/count_complete
+fp6.write("complete_sequence_number: "+str(count_complete)+"\n"+"partial_sequence_number: "+str(count_partial)+"\n"+"internal_sequence_number: "+str(count_internal)+"\n"+"complete_sequence_average_Molecular_Weight: "+str(avgMW)+"\n")
+#print totalMW
+#print avgMW
+
+fp5.close()
+fp6.close()
+os.remove("temp1.txt")
+os.remove("protein_OUTPUT.csv")
+
+###10-ii-2016
+
+##Reading more than one file
+
+#To read more certain files in a directory:
+>>>import glob
+>>>glob.glob("Desktop/pcfb/examples/*.seq")
+>>>files=glob.glob("Desktop/pcfb/examples/*.seq")
+>>>for file in files:
+		lines=open(file, 'r+U').readlines()
+		for line in lines:
+			print line.strip()
+
+##While loops and bootstrapping or jackknifing ***use ~/Desktop/pcfb/examples/ctd.txt
+#! /usr/bin/env python
+import sys
+import random
+import os
+file=sys.argv[1]
+fp1=open(file, 'r+U')
+lines=fp1.readlines()
+data=lines[1:]
+iters=sys.argv[3]
+samples=len(lines)
+half=int(samples/2)
+if sys.argv[2].upper()=="JK":
+	os.system("mkdir jackknife_datasets")
+	x=0
+	while x<int(iters):
+		resample=random.sample(data, int(half))
+		fpjk=open("jackknife_datasets/jk_"+str(x)+".txt", 'w+')
+		for resamp in resample:
+			fpjk.write(resamp)
+		fpjk.close()
+		x=x+1
+elif sys.argv[2].upper()=="BS":
+	os.system("mkdir bootstrap_datasets")
+	x=0
+	while x<int(iters):
+		bootstraps=[]
+		for rep in range(samples):
+			resample=random.choice(data)
+			bootstraps.append(resample)
+		fpbs=open("bootstrap_datasets/bs_"+str(x)+".txt", 'w+')
+		for strap in bootstraps:
+			fpbs.write(strap)
+		fpbs.close()
+		x=x+1
+fp1.close()
+
+##Group activity: read my transcriptome assembly, calculate percentage of complete proteins, average molecular weight of complete proteins, and return counts of complete and partial proteins.
+
+###17-ii-2016
+
+####4 -- R statistical computing
+
+wget -O RTutorialData.zip http://bit.do/r-spiders
+
+I. Introduction
+	A. Downloading & Installing R
+		1. http://www.r-project.org
+		2. Launch installer and follow directions
+	B. Interface
+		1. Commands are typed after the ">"
+		2. Using R as a calculator
+			EXAMPLE:	>2 + 2
+						>2^2
+						>(1 - 2) * 3
+						>sqrt(9)
+						>log(10)
+		3. Error messages
+			EXAMPLE:	>squaretoor(2)
+						>sqrt 2
+						>sqrt(-2)
+	C. Installing and Running Packages
+		1. Installing Packages
+			a. Using "install.packages"
+				EXAMPLE: 	>install.packages("glm", dependencies = TRUE)
+		 	b. Using "Package Installer" --> Also used to update packages
+				EXAMPLE: 	Packages & Data -> Package Installer
+							Choose package
+							Check "install dependencies"
+							Click "Install Selected"
+		2. Calling Packages
+			a. Using "library()"
+				EXAMPLE:	>library(glm)
+			b. Using "Package Manager"
+				EXAMPLE:	Packages & Data -> Package Manager
+							Check box next to desired package
+	D. Getting Help
+		1. Explains arguments for a command
+			EXAMPLE: >help(lm)
+		2. Sometimes confusing --> google search is always helpful
+	E. Object Oriented Languages
+		1. Define objects (i.e. Variables, Data, Transformations, etc.)
+				EXAMPLE:	>object1 <- 2+2
+							>object1 + object1
+							>sqrt.ob1 <- sqrt(object1)
+		2. Objects saved in memory and are of certain "classes" depending on how they were entered or derived
+		3. Analyses can be assigned as objects so the output may be used in subsequent analyses
+
+II. Data Entry and Manipulations
+	A. Manual Data Entry
+		1. Using c()
+			EXAMPLE:	>rand <- c(12, 54, 98, 65, 38)
+						>rand
+						>sum(rand)
+						>length(rand)
+						>avg.rand <- sum(rand)/length(rand)
+						>avg.rand
+						>sort(rand)
+						>min(rand)
+						>max(rand)
+						>cumsum(rand)
+						>diff(rand)
+						>rand[2]
+						>rand*2
+		2. Using scan()
+			EXAMPLE:	>pedes <- scan()
+						1: 2 3 16 23 14 12 4 13 2 0 0 0 6 28 31 14 4 8 2 5
+						21:
+						>bball
+	B. Reading & Importing Files
+		1. Using read.csv() [or read.delim()]
+			EXAMPLE:	>example <- read.csv("PATH/file.csv") #PCs need to be in the correct working directory
+						>example
+						>labels(example)
+		2. From the internet
+			EXAMPLE:	>whale.data <- read.table(file="http://www.math.csi.cuny.edu/UsingR/Data/whale.txt", header=TRUE)
+						>whale.data
+	C. Editing data
+		1. Edit text file or spreadsheet and reload
+		2. Edit in R
+			EXAMPLE:	>edit(whale.data)
+			***Can make new variables and transformations, but no real need as we will see later
+
+III. Analyses
+	A. Univariate Statistics
+		1. Categorical Data
+			a. Barplots
+				EXAMPLE:	>beer <- c(3 4 1 1 3 4 3 3 1 3 2 1 2 1 2 3 2 3 1 1 1 1 4 3 1)
+							>barplot(beer) #WRONG
+							>barplot(table(beer), xlab="Beer", ylab="Frequency") #Counts
+							>barplot(table(beer)/length(beer), xlab="Beer", ylab="Proportion") #Proportions
+			b. Pie Charts
+				EXAMPLE:	>pie(table(beer), main="Beer")
+		2. Numerical Data
+			a. Stem-and-leaf Plots
+				EXAMPLE:	>stem(pedes)
+			b. Strip Chart
+				EXAMPLE:	>stripchart(pedes, method="stack")
+		3. Measures of Center
+			a. Mean
+				EXAMPLE:	>mean(pedes)
+							>mean(whale.data)
+			b. Median
+				EXAMPLE:	>median(pedes)
+							>median(whale.data) #FAIL
+							>with(whale.data, median(texas))
+							>with(whale.data, median(florida))
+			c. Mode
+				EXAMPLE:	>which(table(pedes) == max(table(pedes)))
+							>with(whale.data, which(table(florida) == max(table(florida))))
+							>with(whale.data, which(table(texas) == max(table(texas))))
+		4. Variation
+			a. Range
+				EXAMPLE:	>range(pedes)
+							>diff(range(pedes))
+			b. Variance
+				EXAMPLE:	>var(pedes)
+				EXAMPLE:	>sd(pedes)
+			c. IQRs
+				EXAMPLE:	>IQR(pedes)
+			d. Z-Scores
+				EXAMPLE:	>scale(pedes)
+			e. Summary
+				EXAMPLE:	>summary(pedes)
+		5. Plots
+			a. Histograms
+				EXAMPLE:	>hist(pedes)
+							>hist(whale.data)	#FAIL
+							>hist(pedes, breaks=2)
+							>hist(pedes, breaks="scott")
+							>hist(pedes, prob=TRUE)	#y-axis = probabilities
+							>lines(density(pedes))
+							>plot(density(pedes))
+			b. Box Plots
+				EXAMPLE:	>boxplot(pedes)
+							>summary(boxplot(pedes))
+	B. Bivariate & Multivariate Statistics
+		1. Plotting and Regression
+			a. Box Plotting
+				EXAMPLE:	>spid.gen
+							>boxplot(spid.gen)	#FAIL
+							>boxplot(left.bulb~habitat, data=spid.gen)
+							>boxplot(left.bulb/right.bulb~habitat, data=spid.gen)
+
+			b. Scatter Plotting
+				EXAMPLE:	>plot(left.bulb~right.bulb, data=spid.gen)
+							>plot(left.bulb~right.bulb, data=spid.gen, pch=as.character(habitat))
+			c. Linear Regression
+				EXAMPLE:	>gen.reg <- lm(left.bulb~right.bulb, data=spid.gen)
+							>gen.reg
+							>summary(gen.reg)
+							>plot(left.bulb~right.bulb, data=spid.gen)
+							>abline(gen.reg)
+							>plot(left.bulb~right.bulb, data=spid.gen, pch=as.character(habitat))
+							>abline(gen.reg)
+			d. Correlation Coefficient & Spearman Rank Correlation
+				EXAMPLE:	>cor.gen <- with(spid.gen, cor(left.bulb, right.bulb))
+							>cor.gen^2
+							>spear.cor.gen <- with(spid.gen, cor(left.bulb, right.bulb, method="spearman"))	#to rank non-linear
+							>spear.cor.gen
+			e. Residuals
+				EXAMPLE:	>residuals(gen.reg)
+			f. Transformations
+				EXAMPLE:	>plot(left.bulb^2~right.bulb, data=spid.gen)
+							>abline(lm(left.bulb^2~right.bulb, data=spid.gen))
+							>summary(lm(left.bulb^2~right.bulb, data=spid.gen))
+							>with(spid.gen, identify(left.bulb^2~right.bulb, labels=habitat))	#identify with clicks
+			g. Mention splines, glm, etc.
+		2. Comparing Discrete Treatment Effects
+			a. Chi Squared
+				EXAMPLE:	>obs <- c(32, 7, 13, 10, 14, 43, 105)
+							>exp <- c(.15, .05, .05, .05, .10, .20, .40)
+							>chisq.test(obs, p=exp)
+			b. T-test
+				EXAMPLE:	>with(spid.gen, t.test(left.bulb))	#H0 - true mean is equal to 0; can set true mean with mu=
+							>habiat.t2 <- t.test(left.bulb~habitat, data=spid.gen)
+							>habitat.tless <- t.test(left.bulb~habitat, data=spid.gen, alternative="less")
+							>habitat.tgreater <- t.test(left.bulb~habitat, data=spid.gen, alternative="greater")
+			c. ANOVA
+				EXAMPLE:	>library(car)
+							>gen.lm <- lm(left.bulb~habitat, data=spid.gen)
+							>anova(gen.lm)
+							>gen.anova <- aov(left.bulb~habitat, data=spid.gen)
+							>summary(gen.anova)
+			d. ANCOVA
+				EXAMPLE:	>plot(left.bulb~right.bulb, data=spid.gen, pch=as.character(habitat))
+							>gen.ancova <- lm(left.bulb~habitat*carapace.length, data=spid.gen)
+							>summary(gen.ancova)
+		3. Principal Componenets Analysis
+			EXAMPLE:	>sp.matrix <- with(spid.gen, cbind(left.bulb, right.bulb, carapace.length, leg4.length))
+						>sp.matrix
+						>sp.pca <- princomp(sp.matrix, cor=TRUE)
+						>summary(sp.pca)
+						>loadings(sp.pca)
+						>biplot(sp.pca)
+						>sp.pca$scores
+IV. Graphing Options
+	A. Adding points, lines, titles, & legends
+		1. abline() & points()
+			EXAMPLE:	> plot(left.bulb~right.bulb, data=spid.gen, col="white", main="Left palpal bulb vs. right palpal bulb", xlab="Right Palpal Bulb Length (cm)", ylab="Left Palpal Bulb Length (cm)")
+						> points(left.bulb~right.bulb, data=read.csv("/Users/michaelbrewer/Dropbox/R-Workshop/spider_A.csv"), col="red")
+						> points(left.bulb~right.bulb, data=read.csv("/Users/michaelbrewer/Dropbox/R-Workshop/spider_B.csv"), col="green", pch=22, cex=4)
+						> abline(gen.reg, col="purple", cex=8, lty=4)
+						> legend("topleft", c("left", "right"), col=c("red", "green"), pch=c(1, 22))
+
+V. Saving Output
+	A. Copy and paste log into text file and save.
+	B. Saving graphs
+		EXAMPLE:	> pdf(file= "/Users/michaelbrewer/Desktop/BulbReg.pdf")
+					> plot(left.bulb~right.bulb, data=spid.gen, col="white", main="Left palpal bulb vs. right palpal bulb", xlab="Right Palpal Bulb Length (cm)", ylab="Left Palpal Bulb Length (cm)")
+					> points(left.bulb~right.bulb, data=read.csv("/Users/michaelbrewer/Dropbox/R-Workshop/spider_A.csv"), col="red")
+					> points(left.bulb~right.bulb, data=read.csv("/Users/michaelbrewer/Dropbox/R-Workshop/spider_B.csv"), col="green", pch=22, cex=4)
+					> abline(gen.reg, col="purple", cex=8, lty=4)
+					> legend("topleft", c("left", "right"), col=c("red", "green"), pch=c(1, 22))
+					> dev.off()
+
+
+###22-ii-2016
+
+##Analyses of variance
+
+> gen.reg <- lm(left.bulb~habitat, data=spid.gen)
+> anova(gen.reg)
+> gen.ancova <- lm(left.bulb~habitat*carapace.length, data=spid.gen)
+> summary(gen.ancova)
+
+##R plotting
+
+> plot(left.bulb~right.bulb, data=spid.gen, col="white", main="Left palpal bulb vs. right palpal bulb", xlab="Right Palpal Bulb Length (cm)", ylab="Left Palpal Bulb Length (cm)") # Plot scatter plot with white (invisible) points
+> points(left.bulb~right.bulb, data=read.csv("/Users/michaelbrewer/Dropbox/Public/spider_A.csv"), col="red")
+> points(left.bulb~right.bulb, data=read.csv("/Users/michaelbrewer/Dropbox/Public/spider_B.csv"), col="green", pch=19, cex=4)
+> abline(gen.reg, col="purple", lty=6)
+> legend("topleft", c("A", "B"), col=c("red", "green"), pch=c(1, 19))
+> dev.copy("spider_gen.pdf")
+> dev.off()
+
+> plot(1:25, rep(0.25,25), pch=1:25, col=1:25, ylim=c(0,6), cex=2, ylab="Line types (lty) 1 to 6", xlab="Plotting character (pch) 1 to 25 and colours (col) 1 to 8", main="Line types (lty), plotting characters (pch) and colours (col) for plot and xyplot", lab=c(25,7,2))
+> points(1:8, rep(0.5,8), pch=20, col=1:8, cex=4)
+> abline(h=1:6, lty=1:6)
+
+##Group activity
+
+wget -O Brewer2012PlosONE.zip http://bit.do/Brewer2012PlosONE
+unzip Brewer2012PlosONE.zip
+Bash stuff... cat mac.txt | tr "\r" "\n" > unix.txt
+> plot(data$sp~data$gen, col=data$tax, pch=as.numeric(data$tax)+15, cex=2, xlab="Number of genera", ylab="Number of species")
+> sp_gen_reg <- lm(data$sp~data$gen)
+> abline(sp_gen_reg, lty=2)
+> summary(sp_gen_reg)
+> sp_gen_anova <- lm(data$sp/data$gen~data$tax)
+> anova(sp_gen_anova)
+
+###24-ii-2016
+
+##Looping in R
+
+x <- 5
+if(x < 0){
+	print("Positive number")
+}
+
+x <- -5
+if(x < 0){
+	print("Positive number")
+} else {
+	print("Negative number")
+}
+
+x <- 0
+if (x < 0) {
+   print("Negative number")
+} else if (x > 0) {
+   print("Positive number")
+} else
+   print("Zero")
+
+> a = c(5,7,2,9)
+> ifelse(a %% 2 == 0,"even","odd")
+
+x <- c(2,5,3,9,8,11,6)
+count <- 0
+for (val in x) {
+    if(val %% 2 == 0)  count = count+1
+}
+print(count)
+
+i <- 1
+while (i < 6) {
+   print(i)
+   i = i+1
+}
+
+x <- 1:5
+for (val in x) {
+    if (val == 3){
+        break
+    }
+    print(val)
+}
+
+x <- 1:5
+for (val in x) {
+    if (val == 3){
+        next
+    }
+    print(val)
+}
+
+x <- 1
+
+repeat {
+   print(x)
+   x = x+1
+   if (x == 6){
+       break
+   }
+}
+
+> B = matrix(
++   c(2, 4, 3, 1, 5, 7),
++   nrow=3,
++   ncol=2)
+> B             # B has 3 rows and 2 columns
+
+> t(B)          # transpose of B
+
+> C = matrix(
++   c(7, 4, 2),
++   nrow=3,
++   ncol=1)
+> C             # C has 3 rows
+> cbind(B, C)
+
+> c(B)
+
+#rnorm(n,mean,sd)
+#sample(x, size, replace = FALSE, prob = NULL)
+
+>rnorm(100,50,10) -> poop
+>hist(poop)
+>sample(poop, 10)
+>test <- 1:100
+>sample(test, 50, replace=F)
+>sample(test, 100, replace=T)
+
+###12-iii-2016
+
+##Looping in Bash
+
+>for FileName in *.seq
+	do
+	echo $FileName
+	done
+
+>while [ $x -lt 10 ]
+	do
+	echo $x
+	x=$[$x+1]
+	done
+
+##Looping through files in R
+
+>files <- c()
+>file.names <- dir("./", pattern = ".seq")
+>for (i in 1:length(file.names)) {
+	files <- c(files, file.names[i])
+}
+>files
+
+###14-iii-2016
+
+####Relational Databases
+
+>sudo apt-get update
+>sudo apt-get install mysql-server
+>mysql -u root
+>SHOW DATABASES;
+>CREATE DATABASE midwater;
+>SHOW DATABASES;
+>USE midwater;
+
+#Open a new terminal tab: [ctrl]+[shift]+t
+>sudo apt-get install gedit-plugins
+>gedit ~/Desktop/pcfb/examples/Marrus_claudanielis.txt
+
+#Go to "Edit" -> "Preferences" -> "Plugins" and choose "Draw Spaces"
+
+#Switch back to first terminal tab
+
+>CREATE TABLE specimens (
+specimen_id INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
+vehicle TINYTEXT,
+dive INTEGER,
+date DATE,
+lat FLOAT,
+lon FLOAT,
+depth FLOAT,
+notes TEXT
+);
+
+>SHOW TABLES;
+
+>DESCRIBE specimens;
+
+>INSERT INTO specimens SET
+vehicle='Tiburon',
+dive=596,
+date='2003-07-03',
+lat=36.602,
+lon=-122.375,
+depth=1190,
+notes='holotype';
+
+>SELECT * FROM specimens;
+>DROP DATABASE midwater;
+>exit
+
+##VOA Bugs example
+
+>wget http://bit.do/VOABugsExample
+>mv VOABugsExample VOABugsExample.zip
+>unzip VOABugsExample.zip
+>cd XXX
+>chmod a+x VOABugs_SQL_inputer.py
+>cp VOABugs_SQL_inputer.py ~/scripts/
+
+>mysql -u root
+>CREATE DATABASE VOABugs;
+>USE VOABugs;
+>CREATE TABLE specimens (
+specimen_id VARCHAR(7) NOT NULL PRIMARY KEY,
+date DATE,
+plot TINYTEXT,
+treatment TINYTEXT,
+order_tax TINYTEXT,
+family_tax TINYTEXT,
+individuals INTEGER,
+notes TEXT
+);
+
+#Switch to other terminal tab
+
+>VOABugs_SQL_inputer.py VOAInsects3-26-2012.txt
+
+#Switch to SQL terminal tab
+
+>USE VOABugs
+>DESCRIBE specimens;
+>SELECT * FROM specimens;
+>SELECT COUNT(*) FROM specimens;
+>SELECT specimen_id,plot FROM specimens;
+>SELECT DISTINCT plot FROM specimens;
+>SELECT specimen_id,plot,treatment,COUNT(*) FROM specimens GROUP BY plot, treatment;
+>SELECT order_tax, AVG(individuals) FROM specimens GROUP BY order_tax;
+>SELECT order_tax, AVG(individuals) FROM specimens WHERE order_tax LIKE 'Hymen%';
+>SELECT specimen_id,order_tax FROM specimens WHERE order_tax REGEXP 'optera';
+>SELECT plot,COUNT(individuals) FROM specimens GROUP BY plot;
+>SELECT specimen_id,plot,individuals FROM specimens WHERE individuals > 10;
+
+#Switch to Bash terminal tab
+
+>mkdir /home/manager/Data
+>chmod a+rw ~/Data
+>sudo aa-status
+#If /usr/sbin/mysqld is in enforce mode, do the following:
+	>sudo nano /etc/apparmor.d/usr.sbin.mysqld
+	Add to following lines within the {}:
+	/home/manager/Data/ rw,
+	/home/manager/Data/* rw,
+	/tmp/** rwk,
+	>sudo /etc/init.d/apparmor reload
+
+>SELECT specimen_id,plot,individuals FROM specimens WHERE individuals > 10 INTO OUTFILE '/home/manager/Data/mysqlout.csv' FIELDS TERMINATED BY ',' ENCLOSED BY '"' LINES TERMINATED BY '\n';
+>DROP specimens;
+>DROP DATABASE VOABugs;
+>EXIT;
+
+###21-iii-2016
+
+####Creating and editing images/graphics
+
+#Install Inkscape, GIMP, and Imagemagick
+
+#Short discussion
+
+>wget http://bit.ly/Brewer2014Evol_fig2_Example
+>unzip Brewer2014Evol_fig2_Example.zip
+
+#Inkscape Example
+
+>wget http://teacherweb.com/WQ/ElementarySchool/HawaiianIslands/hi-chain-outline.gif
+
+###23-iii-2016
+
+>wget http://bit.ly/BrachycybeImageExample
+
+#GIMP Example
+
+#ImageJ Example
+
+#Imagemagick Example
+
+###28-iii-2016
+
+####Working on remote machines
+
+#SSH
+>ssh brewerlab@150.216.20.199
+>ssh -X brewerlab@150.216.20.199
+>fastqc
+>touch /media/BigRAID/test.txt
+>exit
+
+#Transfering files
+>tar -czvf scripts_MSB_20160328.tar.gz scripts
+>sftp brewerlab@150.216.20.199
+>ls
+>cd /media/BigRAID
+>!ls
+>put scripts_MSB_20160328.tar.gz scripts_MSB_20160328.tar.gz
+>exit
+
+>scp brewerlab@150.216.20.199:/media/BigRAID/test.txt .
+
+#Controlling programs
+>sleep 1000
+>ls
+#What happens?
+>[ctrl+c]
+>sleep 1000 &
+>ls
+#What happens?
+>ps
+>ps -A
+>ps -A | grep sleep
+>top
+>q
+>kill -9 [PID]
+>sleep 1000
+>killall sleep
+>sleep 1000
+>[ctrl+z]
+>bg
+>fg
+>[ctrl+c]
+
+>ssh brewerlab@150.216.20.199
+>screen -S test
+>sleep 1000
+>[ctrl+a]d
+>exit
+>ssh brewerlab@150.216.20.199
+>screen -ls
+>screen -r test
+>[ctrl+a]k
+>nohup sleep 1000 &
+>exit
+>ssh brewerlab@150.216.20.199
+
+#Finding your IP address
+>host $HOSTNAME
+>ifconfig
+
+#Connect to your own machine
+>ssh manager@localhost
+
+####Compiling software
+
+#From apt-get repositories
+>sudo apt-get update
+>sudo apt-get install htop
+
+#From source code
+>wget --no-check-certificate https://curl.haxx.se/download/curl-7.48.0.tar.bz2
+>tar -xjvf curl-7.48.0.tar.bz2
+>ls
+>cd curl-7.48.0
+>./configure
+>make
+>sudo make install
