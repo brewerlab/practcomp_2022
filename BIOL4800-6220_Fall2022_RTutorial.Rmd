@@ -1143,3 +1143,172 @@ spid.gen
 boxplot(spid.gen$left.bulb/spid.gen$carapace.length ~ spid.gen$habitat)
 ```
 
+  b. Scatter Plotting
+  
+```{r}
+plot(spid.gen$left.bulb ~ spid.gen$right.bulb)
+```
+
+```{r}
+plot(spid.gen$left.bulb ~ spid.gen$right.bulb, pch = as.character(spid.gen$habitat))
+```
+
+  c. Linear Regression
+```{r}
+gen.reg <- lm(spid.gen$left.bulb ~ spid.gen$right.bulb)
+gen.reg
+```
+
+```{r}
+summary(gen.reg)
+```
+
+```{r}
+plot(spid.gen$left.bulb ~ spid.gen$right.bulb, pch = as.character(spid.gen$habitat))
+abline(gen.reg)
+```
+
+  d. Correlation Coefficients & Spearman Rank Correlation
+  
+```{r}
+cor.gen <- with(spid.gen, cor(left.bulb, right.bulb))
+cor.gen^2
+```
+  
+```{r}
+spearman.cor.gen <- with(spid.gen, cor(left.bulb, right.bulb, method="spearman"))
+spearman.cor.gen
+```
+  
+  e. Residuals
+```{r}
+residuals(gen.reg)
+```
+
+  f. Transformations
+  
+```{r}
+plot(log10(spid.gen$left.bulb)~spid.gen$right.bulb)
+```
+  
+2. Comparing Discrete Treatment Effects
+  a. Chi-squared
+```{r}
+obs_weighted <- c(4,15,6,15,18,2)
+obs_fair <- c(10,10,10,10,10,10)
+exp <- c(.16,.17,.16,.17,.17,.17)
+chisq.test(obs_weighted, p=exp)
+chisq.test(obs_fair, p=exp)
+```
+  
+  b. T-tests
+```{r}
+#H0 - true mean is equal to 0, but you can set true mean to other values with mu=
+t.test(spid.gen$carapace.length)
+
+t.test(spid.gen$carapace.length, mu=29)
+```
+  
+```{r}
+habitat.t2 <- t.test(spid.gen$left.bulb~spid.gen$habitat)
+habitat.t2
+```
+  
+```{r}
+habitat.tless <- t.test(spid.gen$left.bulb, alternative = "less")
+habitat.tless
+```
+
+```{r}
+habitat.tgreater <- t.test(spid.gen$left.bulb, alternative = "greater")
+habitat.tgreater
+```
+  
+  c. Analysis of Variance (ANOVA)
+```{r}
+gen.lm <- lm(spid.gen$left.bulb~spid.gen$habitat)
+summary(gen.lm)
+```
+  
+```{r}
+anova(gen.lm)
+```
+  
+```{r}
+gen.anova <- aov(spid.gen$left.bulb~spid.gen$habitat)
+summary(gen.anova)
+```
+  
+```{r}
+gapminder.lifeexp.continent.anova <- aov(gapminder2$lifeExp~gapminder2$continent)
+summary(gapminder.lifeexp.continent.anova)
+```
+  
+```{r}
+gapminder.tukey.two.way <- TukeyHSD(gapminder.lifeexp.continent.anova)
+gapminder.tukey.two.way
+```
+  
+  d. Analysis of Co-Variance (ANCOVA)
+  
+```{r}
+boxplot(spid.gen$left.bulb~spid.gen$habitat)
+```
+
+```{r}
+gen.ancova <- lm(spid.gen$left.bulb~spid.gen$habitat*spid.gen$carapace.length)
+summary(gen.ancova)
+```
+
+```{r}
+gapminder.lifeexp.continent_GDP.ancova <- aov(lifeExp~continent+gdpPercap, data=gapminder2)
+summary(gapminder.lifeexp.continent_GDP.ancova)
+```
+
+```{r}
+#install.packages("multcomp", dependencies = T)
+library(multcomp)
+#posthoc.gapminder.ancova <- glht(gapminder.lifeexp.continent_GDP.ancova, linfct = mcp(continent = "Tukey"))
+```
+  
+3. Principal Component Analysis
+
+```{r}
+sp.matrix <- with(spid.gen, cbind(left.bulb,right.bulb,carapace.length,leg4.length))
+sp.matrix
+```
+```{r}
+sp.pca <- princomp(sp.matrix, cor=TRUE)
+summary(sp.pca)
+```
+
+```{r}
+loadings(sp.pca)
+```
+ 
+```{r}
+biplot(sp.pca)
+```
+```{r}
+sp.pca$score
+```
+
+```{r}
+#install.packages("ggfortify", dependencies = T)
+library(ggfortify)
+sp.pca.plot <- autoplot(sp.pca,
+                          data = spid.gen,
+                          colour = 'habitat')
+  
+sp.pca.plot
+```
+ 
+```{r}
+plot(1:25, rep(0.25,25), pch=1:25, col=1:25, ylim=c(0,6), cex=2, ylab="Line types (lty) 1 to 6", xlab="Plotting character (pch) 1 to 25 and colours (col) 1 to 8", main="Line types (lty), plotting characters (pch) and colours (col) for plot and xyplot", lab=c(25,7,2))
+
+points(1:8, rep(0.5,8), pch=20, col=1:8, cex=4)
+
+abline(h=1:6, lty=1:6)
+```
+ 
+ 
