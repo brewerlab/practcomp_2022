@@ -1240,6 +1240,7 @@ summary(gen.anova)
 ```
   
 ```{r}
+gapminder2$continent <- as.factor(gapminder2$continent)
 gapminder.lifeexp.continent.anova <- aov(gapminder2$lifeExp~gapminder2$continent)
 summary(gapminder.lifeexp.continent.anova)
 ```
@@ -1261,15 +1262,39 @@ summary(gen.ancova)
 ```
 
 ```{r}
-gapminder.lifeexp.continent_GDP.ancova <- aov(lifeExp~continent+gdpPercap, data=gapminder2)
-summary(gapminder.lifeexp.continent_GDP.ancova)
+#install.packages("dplyr", dependencies = T)
+library(dplyr)
+
+gapminder2 %>%
+  group_by(continent) %>%
+  summarize(mean_lifeExp = mean(lifeExp),
+            sd_lifeExp = sd(lifeExp),
+            mean_gdpPercap = mean(gdpPercap),
+            sd_gdpPercap = sd(gdpPercap))
+```
+
+
+```{r}
+#install.packages("car", dependencies = T)
+library(car)
+gapminder.lifeexp.continent_GDP.ancova <- aov(lifeExp ~ continent + gdpPercap, data = gapminder2)
+Anova(gapminder.lifeexp.continent_GDP.ancova, type="III")
 ```
 
 ```{r}
 #install.packages("multcomp", dependencies = T)
 library(multcomp)
-#posthoc.gapminder.ancova <- glht(gapminder.lifeexp.continent_GDP.ancova, linfct = mcp(continent = "Tukey"))
+posthoc.gapminder.ancova <- glht(gapminder.lifeexp.continent_GDP.ancova, linfct = mcp(continent = "Tukey"))
+
+summary(posthoc.gapminder.ancova)
+
+#TukeyHSD(gapminder.lifeexp.continent_GDP.ancova, which = "continent")
 ```
+
+```{r}
+confint(posthoc.gapminder.ancova)
+```
+
   
 3. Principal Component Analysis
 
